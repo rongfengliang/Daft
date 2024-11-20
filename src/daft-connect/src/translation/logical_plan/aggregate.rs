@@ -4,7 +4,7 @@ use spark_connect::aggregate::GroupType;
 
 use crate::translation::{to_daft_expr, to_logical_plan};
 
-pub fn aggregate(aggregate: spark_connect::Aggregate) -> eyre::Result<LogicalPlanBuilder> {
+pub async fn aggregate(aggregate: spark_connect::Aggregate) -> eyre::Result<LogicalPlanBuilder> {
     let spark_connect::Aggregate {
         input,
         group_type,
@@ -18,7 +18,7 @@ pub fn aggregate(aggregate: spark_connect::Aggregate) -> eyre::Result<LogicalPla
         bail!("input is required");
     };
 
-    let plan = to_logical_plan(*input)?;
+    let plan = Box::pin(to_logical_plan(*input)).await?;
 
     let group_type = GroupType::try_from(group_type)
         .wrap_err_with(|| format!("Invalid group type: {group_type:?}"))?;

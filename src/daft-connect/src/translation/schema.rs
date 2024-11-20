@@ -7,12 +7,12 @@ use tracing::warn;
 use crate::translation::{to_logical_plan, to_spark_datatype};
 
 #[tracing::instrument(skip_all)]
-pub fn relation_to_schema(input: Relation) -> eyre::Result<DataType> {
+pub async fn relation_to_schema(input: Relation) -> eyre::Result<DataType> {
     if input.common.is_some() {
         warn!("We do not currently look at common fields");
     }
 
-    let plan = to_logical_plan(input)?;
+    let plan = Box::pin(to_logical_plan(input)).await?;
 
     let result = plan.schema();
 
