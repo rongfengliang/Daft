@@ -180,6 +180,7 @@ members = [
 
 [workspace.dependencies]
 approx = "0.5.1"
+arrow-format = {version = "0.8", features = ["ipc"]}
 async-compat = "0.2.3"
 async-compression = {version = "0.4.12", features = [
   "tokio",
@@ -200,9 +201,11 @@ daft-dsl = {path = "src/daft-dsl"}
 daft-hash = {path = "src/daft-hash"}
 daft-local-execution = {path = "src/daft-local-execution"}
 daft-logical-plan = {path = "src/daft-logical-plan"}
+daft-micropartition = {path = "src/daft-micropartition"}
 daft-scan = {path = "src/daft-scan"}
 daft-schema = {path = "src/daft-schema"}
 daft-table = {path = "src/daft-table"}
+daft-writers = {path = "src/daft-writers"}
 derivative = "2.2.0"
 derive_builder = "0.20.2"
 futures = "0.3.30"
