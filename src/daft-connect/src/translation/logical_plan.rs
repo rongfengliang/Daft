@@ -3,7 +3,9 @@ use eyre::{bail, Context};
 use spark_connect::{relation::RelType, Limit, Relation};
 use tracing::warn;
 
-use crate::translation::logical_plan::{aggregate::aggregate, project::project, range::range, sort::sort};
+use crate::translation::logical_plan::{
+    aggregate::aggregate, project::project, range::range, sort::sort,
+};
 
 mod aggregate;
 mod project;
