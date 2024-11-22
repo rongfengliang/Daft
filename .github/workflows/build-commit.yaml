@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-commit:
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: buildjet-8vcpu-ubuntu-2004-arm
     timeout-minutes: 15 # Remove for ssh debugging
     permissions:
       id-token: write
