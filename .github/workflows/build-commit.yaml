@@ -2,6 +2,15 @@ name: Build a Daft commit and store the outputted wheel in AWS S3
 
 on:
   workflow_dispatch:
+    inputs:
+      machine_arch:
+        type: choice
+        options:
+        - x86
+        - arm
+        description: The machine architecture type to run the build on
+        required: false
+        default: x86
   workflow_call:
     secrets:
       ACTIONS_AWS_ROLE_ARN:
@@ -14,7 +23,8 @@ on:
 
 jobs:
   build-commit:
-    runs-on: buildjet-8vcpu-ubuntu-2004-arm
+    runs-on: |
+      ${{ inputs.machine_arch == 'x86' ? 'buildjet-8vcpu-ubuntu-2004' : 'buildjet-8vcpu-ubuntu-2204-arm' }}}
     timeout-minutes: 15 # Remove for ssh debugging
     permissions:
       id-token: write
@@ -42,17 +52,18 @@ jobs:
         restore-keys: ${{ runner.os }}-cargo-deps-
     - name: Check if build already exists in AWS S3
       run: |
-        RESULT=$(aws s3 ls s3://github-actions-artifacts-bucket/builds/${{ github.sha }}/ | wc -l)
-        if [ "$RESULT" -gt 1 ]; then
-            echo "Error: More than one artifact found. Failing the job."
-            exit 1
-        elif [ "$RESULT" -eq 0 ]; then
-            echo "COMMIT_BUILT=0" >> $GITHUB_ENV
-            echo "No artifacts found; will proceed with building a new wheel"
-        elif [ "$RESULT" -eq 1 ]; then
-            echo "COMMIT_BUILT=1" >> $GITHUB_ENV
-            echo "Commit already built; reusing existing wheel"
-        fi
+        # RESULT=$(aws s3 ls s3://github-actions-artifacts-bucket/builds/${{ github.sha }}/ | wc -l)
+        # if [ "$RESULT" -gt 1 ]; then
+        #     echo "Error: More than one artifact found. Failing the job."
+        #     exit 1
+        # elif [ "$RESULT" -eq 0 ]; then
+        #     echo "COMMIT_BUILT=0" >> $GITHUB_ENV
+        #     echo "No artifacts found; will proceed with building a new wheel"
+        # elif [ "$RESULT" -eq 1 ]; then
+        #     echo "COMMIT_BUILT=1" >> $GITHUB_ENV
+        #     echo "Commit already built; reusing existing wheel"
+        # fi
+        echo "COMMIT_BUILT=0" >> $GITHUB_ENV
     - name: Build release wheel
       run: |
         if [ "$COMMIT_BUILT" -eq 1 ]; then
