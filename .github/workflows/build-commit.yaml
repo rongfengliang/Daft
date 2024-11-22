@@ -23,7 +23,8 @@ on:
 
 jobs:
   build-commit:
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    # runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ${{ inputs.machine_arch == 'x86' && 'buildjet-8vcpu-ubuntu-2004' || 'buildjet-8vcpu-ubuntu-2004' }}
     timeout-minutes: 15 # Remove for ssh debugging
     permissions:
       id-token: write
