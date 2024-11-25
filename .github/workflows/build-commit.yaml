@@ -41,7 +41,7 @@ jobs:
       run: |
         uv v
         source .venv/bin/activate
-        uv pip install boto3
+        uv pip install boto3 packaging
     - name: Check if build already exists in AWS S3
       run: |
         source .venv/bin/activate
