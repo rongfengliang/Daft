@@ -45,7 +45,7 @@ jobs:
     - name: Check if build already exists in AWS S3
       run: |
         source .venv/bin/activate
-        wheel_name=$(python .github/assets/get_wheel_name_from_s3.py ${{ github.sha }} x86)
+        wheel_name=$(python .github/ci-scripts/get_wheel_name_from_s3.py ${{ github.sha }} x86)
         echo "wheel_name=$wheel_name" >> $GITHUB_ENV
     - name: Build release wheel
       run: |
@@ -64,7 +64,7 @@ jobs:
           exit 0
         fi
         source .venv/bin/activate
-        python .github/assets/upload_wheel_to_s3.py ${{ github.sha }} x86 ~/target/wheels
+        python .github/ci-scripts/upload_wheel_to_s3.py ${{ github.sha }} x86 ~/target/wheels
     - name: Print url of the built wheel to GitHub Actions Summary Page
       run: |
         url="https://us-west-2.console.aws.amazon.com/s3/object/github-actions-artifacts-bucket?prefix=builds/${{ github.sha }}/$wheel_name"
