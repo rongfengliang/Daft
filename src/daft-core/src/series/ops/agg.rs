@@ -12,7 +12,7 @@ use crate::{
     count_mode::CountMode,
     datatypes::*,
     series::{IntoSeries, Series},
-    with_match_physical_daft_types,
+    with_match_comparable_daft_types, with_match_physical_daft_types,
 };
 
 impl Series {
@@ -27,8 +27,14 @@ impl Series {
         })
     }
 
-    pub fn count_distinct(&self, _: Option<&GroupIndices>, _: CountMode) -> DaftResult<Self> {
-        todo!("count distinct")
+    pub fn count_distinct(&self, groups: Option<&GroupIndices>, _: CountMode) -> DaftResult<Self> {
+        // use crate::array::ops::DaftCountDistinctAggable;
+        with_match_comparable_daft_types!(self.data_type(), |$T| {
+            match groups {
+                Some(_) => todo!("count distinct"),
+                None => todo!("count distinct"),
+            }
+        })
     }
 
     pub fn sum(&self, groups: Option<&GroupIndices>) -> DaftResult<Self> {
