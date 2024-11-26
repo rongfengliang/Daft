@@ -768,6 +768,9 @@ pub fn extract_agg_expr(expr: &ExprRef) -> DaftResult<AggExpr> {
                 AggExpr::Count(e, count_mode) => {
                     AggExpr::Count(Expr::Alias(e, name.clone()).into(), count_mode)
                 }
+                AggExpr::CountDistinct(e, count_mode) => {
+                    AggExpr::CountDistinct(Expr::Alias(e, name.clone()).into(), count_mode)
+                },
                 AggExpr::Sum(e) => AggExpr::Sum(Expr::Alias(e, name.clone()).into()),
                 AggExpr::ApproxPercentile(ApproxPercentileParams {
                     child: e,
@@ -859,6 +862,7 @@ pub fn populate_aggregation_stages(
                     ));
                 final_exprs.push(col(sum_of_count_id.clone()).alias(output_name));
             }
+            &AggExpr::CountDistinct(..) => todo!("count distinct"),
             AggExpr::Sum(e) => {
                 let sum_id = agg_expr.semantic_id(schema).id;
                 let sum_of_sum_id = AggExpr::Sum(col(sum_id.clone())).semantic_id(schema).id;

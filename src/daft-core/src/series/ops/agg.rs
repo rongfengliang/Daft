@@ -27,6 +27,10 @@ impl Series {
         })
     }
 
+    pub fn count_distinct(&self, _: Option<&GroupIndices>, _: CountMode) -> DaftResult<Self> {
+        todo!("count distinct")
+    }
+
     pub fn sum(&self, groups: Option<&GroupIndices>) -> DaftResult<Self> {
         match self.data_type() {
             // intX -> int64 (in line with numpy)
