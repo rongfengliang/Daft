@@ -17,6 +17,7 @@ mod comparison;
 mod concat;
 mod concat_agg;
 mod count;
+mod count_distinct;
 mod exp;
 mod filter;
 mod float;
