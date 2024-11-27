@@ -24,6 +24,7 @@ use pyo3::prelude::*;
 pub use slice::{list_slice as slice, ListSlice};
 pub use sort::{list_sort as sort, ListSort};
 pub use sum::{list_sum as sum, ListSum};
+pub use value_counts::list_value_counts as value_counts;
 
 #[cfg(feature = "python")]
 pub fn register_modules(parent: &Bound<PyModule>) -> PyResult<()> {

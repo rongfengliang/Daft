@@ -13,7 +13,10 @@ use daft_dsl::{
     col, functions::agg::merge_mean, is_partition_compatible, AggExpr, ApproxPercentileParams,
     Expr, ExprRef, SketchType,
 };
-use daft_functions::numeric::sqrt;
+use daft_functions::{
+    list::{count, value_counts},
+    numeric::sqrt,
+};
 use daft_logical_plan::{
     logical_plan::LogicalPlan,
     ops::{
@@ -862,7 +865,27 @@ pub fn populate_aggregation_stages(
                     ));
                 final_exprs.push(col(sum_of_count_id.clone()).alias(output_name));
             }
-            &AggExpr::CountDistinct(..) => todo!("count distinct"),
+            &AggExpr::CountDistinct(ref sub_expr, mode) => {
+                // First stage
+                let list_agg_id = add_to_stage(
+                    AggExpr::List,
+                    sub_expr.clone(),
+                    schema,
+                    &mut first_stage_aggs,
+                );
+
+                // Second stage
+                let list_concat_id = add_to_stage(
+                    AggExpr::Concat,
+                    col(list_agg_id.clone()),
+                    schema,
+                    &mut second_stage_aggs,
+                );
+
+                // Final projection
+                let result = count(value_counts(col(list_concat_id)), mode);
+                final_exprs.push(result);
+            }
             AggExpr::Sum(e) => {
                 let sum_id = agg_expr.semantic_id(schema).id;
                 let sum_of_sum_id = AggExpr::Sum(col(sum_id.clone())).semantic_id(schema).id;

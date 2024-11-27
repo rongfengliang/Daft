@@ -27,8 +27,16 @@ impl Series {
         })
     }
 
-    pub fn count_distinct(&self, _: Option<&GroupIndices>, _: CountMode) -> DaftResult<Self> {
-        todo!("count distinct")
+    pub fn count_distinct(
+        &self,
+        groups: Option<&GroupIndices>,
+        mode: CountMode,
+    ) -> DaftResult<Self> {
+        Ok(self
+            .agg_list(groups)?
+            .list_value_counts()?
+            .list_count(mode)?
+            .into_series())
     }
 
     pub fn sum(&self, groups: Option<&GroupIndices>) -> DaftResult<Self> {
