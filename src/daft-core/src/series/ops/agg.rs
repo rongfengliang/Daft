@@ -1,21 +1,56 @@
+use std::collections::{hash_map::RawEntryMut, HashMap};
+
 use arrow2::array::PrimitiveArray;
 use common_error::{DaftError, DaftResult};
 
 use crate::{
     array::{
         ops::{
-            DaftApproxSketchAggable, DaftHllMergeAggable, DaftMeanAggable, DaftStddevAggable,
-            DaftSumAggable, GroupIndices,
+            arrow2::comparison::build_is_equal, DaftApproxSketchAggable, DaftHllMergeAggable,
+            DaftMeanAggable, DaftStddevAggable, DaftSumAggable, GroupIndices,
         },
         ListArray,
     },
     count_mode::CountMode,
     datatypes::*,
+    prelude::AsArrow,
     series::{IntoSeries, Series},
+    utils::identity_hash_set::{IdentityBuildHasher, IndexHash},
     with_match_physical_daft_types,
 };
 
 impl Series {
+    fn _probe_table(&self) -> DaftResult<HashMap<IndexHash, (), IdentityBuildHasher>> {
+        let hashes = self.hash(None)?;
+        let array = self.to_arrow();
+        let comparator = build_is_equal(&*array, &*array, true, true)?;
+
+        const DEFAULT_SIZE: usize = 20;
+        let mut probe_table =
+            HashMap::<IndexHash, (), IdentityBuildHasher>::with_capacity_and_hasher(
+                DEFAULT_SIZE,
+                Default::default(),
+            );
+
+        for (idx, &hash) in hashes.as_arrow().values_iter().enumerate() {
+            let entry = probe_table.raw_entry_mut().from_hash(hash, |other| {
+                (hash == other.hash) && comparator(idx, other.idx as _)
+            });
+            if let RawEntryMut::Vacant(entry) = entry {
+                entry.insert_hashed_nocheck(
+                    hash,
+                    IndexHash {
+                        idx: idx as u64,
+                        hash,
+                    },
+                    (),
+                );
+            };
+        }
+
+        Ok(probe_table)
+    }
+
     pub fn count(&self, groups: Option<&GroupIndices>, mode: CountMode) -> DaftResult<Self> {
         use crate::array::ops::DaftCountAggable;
         let s = self.as_physical()?;
