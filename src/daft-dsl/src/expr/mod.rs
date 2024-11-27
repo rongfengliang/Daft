@@ -401,11 +401,7 @@ impl AggExpr {
 
     pub fn to_field(&self, schema: &Schema) -> DaftResult<Field> {
         match self {
-            Self::Count(expr, ..) => {
-                let field = expr.to_field(schema)?;
-                Ok(Field::new(field.name.as_str(), DataType::UInt64))
-            }
-            Self::CountDistinct(expr, ..) => {
+            Self::Count(expr, ..) | Self::CountDistinct(expr, ..) => {
                 let field = expr.to_field(schema)?;
                 Ok(Field::new(field.name.as_str(), DataType::UInt64))
             }
