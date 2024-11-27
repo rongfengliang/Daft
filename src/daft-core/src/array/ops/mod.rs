@@ -17,7 +17,6 @@ mod comparison;
 mod concat;
 mod concat_agg;
 mod count;
-mod count_distinct;
 mod exp;
 mod filter;
 mod float;
@@ -167,12 +166,6 @@ pub trait DaftCountAggable {
     type Output;
     fn count(&self, mode: CountMode) -> Self::Output;
     fn grouped_count(&self, groups: &GroupIndices, mode: CountMode) -> Self::Output;
-}
-
-pub trait DaftCountDistinctAggable {
-    type Output;
-    fn count_distinct(&self, mode: CountMode) -> Self::Output;
-    fn grouped_count_distinct(&self, groups: &GroupIndices, mode: CountMode) -> Self::Output;
 }
 
 pub trait DaftApproxCountDistinctAggable {
